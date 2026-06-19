@@ -7,6 +7,6 @@
     ]
   },
   "deploy": {
-    "startCmd": "pnpm --filter @workspace/api-server run start"
+    "startCommand": "pnpm --filter @workspace/api-server run start"
   }
 }
