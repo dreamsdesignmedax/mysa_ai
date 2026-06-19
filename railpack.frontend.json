@@ -1,0 +1,11 @@
+{
+  "build": {
+    "cmds": [
+      "pnpm install",
+      "pnpm --filter @workspace/mysa-b2c-v3 run build"
+    ]
+  },
+  "deploy": {
+    "staticDir": "artifacts/mysa-b2c-v3/dist"
+  }
+}
