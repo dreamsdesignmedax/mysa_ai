@@ -8,6 +8,7 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import path from "node:path";
 import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { verifyToken } from "./routes/auth";
@@ -302,9 +303,26 @@ app.get("/api/docs", (_req: Request, res: Response) => {
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use("/api", router);
 
-// ── 404 catch-all ────────────────────────────────────────────────────────────
-app.use((_req: Request, res: Response) => {
-  res.status(404).json({ error: "Not found" });
+// ── Serve frontend static files + SPA fallback ───────────────────────────────
+const frontendDist =
+  process.env["FRONTEND_DIST_PATH"] ||
+  path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../../artifacts/mysa-b2c-v3/dist",
+  );
+const hasFrontend = existsSync(frontendDist);
+
+if (hasFrontend) {
+  app.use(express.static(frontendDist));
+}
+
+// ── 404 / SPA fallback ────────────────────────────────────────────────────────
+app.use((req: Request, res: Response) => {
+  if (req.path.startsWith("/api") || !hasFrontend) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+  res.sendFile(path.join(frontendDist, "index.html"));
 });
 
 // ── Global error handler ──────────────────────────────────────────────────────
