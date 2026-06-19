@@ -6,5 +6,7 @@
       "pnpm --filter @workspace/mysa-b2c-v3 run build"
     ]
   },
-  "start": "pnpm --filter @workspace/api-server run start"
+  "deploy": {
+    "startCmd": "pnpm --filter @workspace/api-server run start"
+  }
 }
