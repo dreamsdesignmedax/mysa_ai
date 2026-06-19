@@ -1,8 +1,17 @@
 {
+  "buildAptPackages": [
+    "build-essential",
+    "python3",
+    "libcairo2-dev",
+    "libpango1.0-dev",
+    "libjpeg-dev",
+    "libgif-dev",
+    "librsvg2-dev",
+    "libatomic1"
+  ],
   "steps": {
     "install": {
       "commands": [
-        "pnpm add -g node-gyp",
         "pnpm install --no-frozen-lockfile --prefer-offline"
       ]
     },
