@@ -1,0 +1,36 @@
+import { pgTable, serial, text, integer, boolean, timestamp, jsonb, real } from "drizzle-orm/pg-core";
+
+export const organizations = pgTable("organizations", {
+  id:                    serial("id").primaryKey(),
+  name:                  text("name").notNull(),
+  email:                 text("email").notNull().unique(),
+  ownerName:             text("owner_name"),
+  phone:                 text("phone"),
+  website:               text("website"),
+  plan:                  text("plan").notNull().default("trial"),
+  stripeCustomerId:      text("stripe_customer_id"),
+  stripeSubscriptionId:  text("stripe_subscription_id"),
+  subscriptionStatus:    text("subscription_status").notNull().default("trialing"),
+  trialEndsAt:           timestamp("trial_ends_at", { withTimezone: true }),
+  currentPeriodEnd:      timestamp("current_period_end", { withTimezone: true }),
+  leadsUsedThisMonth:    integer("leads_used_this_month").notNull().default(0),
+  emailsUsedThisMonth:   integer("emails_used_this_month").notNull().default(0),
+  auditsUsedThisMonth:   integer("audits_used_this_month").notNull().default(0),
+  trialStartedAt:        timestamp("trial_started_at", { withTimezone: true }),
+  trialExpired:          boolean("trial_expired").notNull().default(false),
+  trialNudgeSentAt:      timestamp("trial_nudge_sent_at", { withTimezone: true }),
+  welcomeEmailSentAt:    timestamp("welcome_email_sent_at", { withTimezone: true }),
+  isActive:              boolean("is_active").notNull().default(true),
+  isSuspended:           boolean("is_suspended").notNull().default(false),
+  inviteToken:           text("invite_token"),
+  inviteSentAt:          timestamp("invite_sent_at", { withTimezone: true }),
+  onboardedAt:           timestamp("onboarded_at", { withTimezone: true }),
+  notes:                 text("notes"),
+  modelRoutingOverrides:   jsonb("model_routing_overrides").$type<Record<string, "FAST" | "SMART">>().notNull().default({}),
+  aiSpendDailyLimitUsd:    real("ai_spend_daily_limit_usd"),
+  aiSpendAlertSentAt:      timestamp("ai_spend_alert_sent_at", { withTimezone: true }),
+  createdAt:               timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt:               timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type Organization = typeof organizations.$inferSelect;

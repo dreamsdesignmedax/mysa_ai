@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "MysaAI — Landing Page"
+version = "1.0.0"
+id = "artifacts/mysa-landing"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22188
+
+[services.development]
+run = "pnpm --filter @workspace/mysa-landing run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mysa-landing", "run", "build" ]
+publicDir = "artifacts/mysa-landing/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22188"
+BASE_PATH = "/"

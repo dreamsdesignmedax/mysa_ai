@@ -1,0 +1,3598 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Dreamsdesign Sales War Machine API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: dashboard
+    description: Dashboard and analytics
+  - name: icp
+    description: Ideal Customer Profile management
+  - name: leads
+    description: Lead management
+  - name: audit
+    description: Brand audit engine
+  - name: qualify
+    description: BANT qualification
+  - name: outreach
+    description: Outreach sequences and messages
+  - name: meetings
+    description: Meeting management
+  - name: proposals
+    description: Proposal and close tracking
+  - name: anthropic
+    description: Anthropic AI chat operations
+  - name: settings
+    description: Application settings
+  - name: whatsapp
+    description: WhatsApp bot conversations and settings
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─────────────────────────────────────────
+  # DASHBOARD
+  # ─────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get KPI summary for dashboard
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: Recent activity items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/pipeline-funnel:
+    get:
+      operationId: getPipelineFunnel
+      tags: [dashboard]
+      summary: Get pipeline funnel stage counts
+      responses:
+        "200":
+          description: Funnel stage counts with conversion rates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PipelineFunnel"
+
+  # ─────────────────────────────────────────
+  # ICP MANAGER
+  # ─────────────────────────────────────────
+  /icp:
+    get:
+      operationId: listIcps
+      tags: [icp]
+      summary: List all ICPs
+      responses:
+        "200":
+          description: List of ICPs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Icp"
+    post:
+      operationId: createIcp
+      tags: [icp]
+      summary: Create ICP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIcpBody"
+      responses:
+        "201":
+          description: Created ICP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Icp"
+
+  /icp/generate:
+    post:
+      operationId: generateIcpSuggestions
+      tags: [icp]
+      summary: Generate ICP suggestions using AI based on website and product description
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateIcpBody"
+      responses:
+        "200":
+          description: Array of generated ICP suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IcpSuggestion"
+
+  /icp/{id}:
+    get:
+      operationId: getIcp
+      tags: [icp]
+      summary: Get ICP
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ICP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Icp"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateIcp
+      tags: [icp]
+      summary: Update ICP
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIcpBody"
+      responses:
+        "200":
+          description: Updated ICP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Icp"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteIcp
+      tags: [icp]
+      summary: Delete ICP
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ─────────────────────────────────────────
+  # LEADS
+  # ─────────────────────────────────────────
+  /leads:
+    get:
+      operationId: listLeads
+      tags: [leads]
+      summary: List leads with filters and pagination
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: icpId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: industry
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: country
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: source
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: minScore
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: maxScore
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: page
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: search
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Paginated list of leads
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadListResponse"
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Create a single lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeadBody"
+      responses:
+        "201":
+          description: Created lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+
+  /leads/import/csv:
+    post:
+      operationId: importLeadsCsv
+      tags: [leads]
+      summary: Bulk import leads from CSV data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportCsvBody"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+
+  /leads/import/paste:
+    post:
+      operationId: importLeadsPaste
+      tags: [leads]
+      summary: Bulk import leads from pasted text (AI-parsed)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportPasteBody"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+
+  /leads/bulk:
+    patch:
+      operationId: bulkUpdateLeads
+      tags: [leads]
+      summary: Bulk update lead status or sequence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkUpdateLeadsBody"
+      responses:
+        "200":
+          description: Updated count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkUpdateResult"
+
+  /leads/{id}:
+    get:
+      operationId: getLead
+      tags: [leads]
+      summary: Get single lead with full profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lead detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateLead
+      tags: [leads]
+      summary: Update lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLeadBody"
+      responses:
+        "200":
+          description: Updated lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteLead
+      tags: [leads]
+      summary: Delete lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /leads/{id}/assign-sequence:
+    post:
+      operationId: assignLeadSequence
+      tags: [leads]
+      summary: Assign outreach sequence to lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignSequenceBody"
+      responses:
+        "200":
+          description: Sequence assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+
+  # ─────────────────────────────────────────
+  # BRAND AUDIT ENGINE
+  # ─────────────────────────────────────────
+  /audit/categories:
+    get:
+      operationId: listAuditCategories
+      tags: [audit]
+      summary: List all audit signal categories with signals
+      responses:
+        "200":
+          description: Audit categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditCategory"
+
+  /audit/run:
+    post:
+      operationId: runAudit
+      tags: [audit]
+      summary: Run brand audit for a lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunAuditBody"
+      responses:
+        "200":
+          description: Audit result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditResult"
+
+  /audit/runs/{runId}:
+    get:
+      operationId: getAuditRun
+      tags: [audit]
+      summary: Get full details for a single audit run
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Full audit run data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditRun"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateAuditRun
+      tags: [audit]
+      summary: Update signal overrides on an audit run
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAuditBody"
+      responses:
+        "200":
+          description: Updated audit run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditRun"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAuditRun
+      tags: [audit]
+      summary: Delete a single audit run by ID
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /audit/{leadId}:
+    get:
+      operationId: getAudit
+      tags: [audit]
+      summary: Get existing audit for a lead
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Audit data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditResult"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateAudit
+      tags: [audit]
+      summary: Update manual checklist items for a lead's audit
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAuditBody"
+      responses:
+        "200":
+          description: Updated audit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditResult"
+
+  /audit/{leadId}/history:
+    get:
+      operationId: getAuditHistory
+      tags: [audit]
+      summary: Get audit run history for a lead
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of audit runs (summary only, no signals)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditRunSummary"
+    delete:
+      operationId: clearAuditHistory
+      tags: [audit]
+      summary: Delete all audit runs for a lead
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: All audit runs deleted
+        "400":
+          description: Invalid lead ID
+
+  /audit/generate-report:
+    post:
+      operationId: generateIntelReport
+      tags: [audit]
+      summary: Generate a client-facing Brand Intelligence PDF report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateIntelReportRequest"
+      responses:
+        "200":
+          description: PDF binary stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Validation error
+        "404":
+          description: Lead not found
+
+  /audit-bank:
+    get:
+      operationId: listAuditBank
+      tags: [audit]
+      summary: List all audit runs across all leads
+      responses:
+        "200":
+          description: All audit runs with lead info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditBankEntry"
+
+  # ─────────────────────────────────────────
+  # OUTREACH AI ENGINE
+  # ─────────────────────────────────────────
+  /outreach-ai/emails:
+    get:
+      operationId: listOutreachEmails
+      tags: [outreach-ai]
+      summary: List all outreach emails
+      responses:
+        "200":
+          description: All outreach emails with lead info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OutreachEmailEntry"
+
+  /outreach-ai/generate/{leadId}:
+    post:
+      operationId: generateOutreachEmail
+      tags: [outreach-ai]
+      summary: Generate AI outreach email for a lead (SSE)
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: SSE stream of generation progress
+
+  /outreach-ai/generate-all:
+    post:
+      operationId: generateAllOutreachEmails
+      tags: [outreach-ai]
+      summary: Generate AI outreach emails for all leads (SSE)
+      responses:
+        "200":
+          description: SSE stream of bulk generation progress
+
+  /outreach-ai/emails/{id}:
+    patch:
+      operationId: updateOutreachEmail
+      tags: [outreach-ai]
+      summary: Update a draft outreach email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOutreachEmailInput"
+      responses:
+        "200":
+          description: Updated email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachEmailEntry"
+    delete:
+      operationId: deleteOutreachEmail
+      tags: [outreach-ai]
+      summary: Delete a draft outreach email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /outreach-ai/audited-leads:
+    get:
+      operationId: listAuditedLeads
+      tags: [outreach-ai]
+      summary: List leads that have at least one brand audit report
+      responses:
+        "200":
+          description: Audited leads with their audit summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditedLead"
+
+  /outreach-ai/compose:
+    post:
+      operationId: composeOutreachEmail
+      tags: [outreach-ai]
+      summary: AI-generate an email for a specific lead using their audit report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComposeEmailInput"
+      responses:
+        "200":
+          description: AI-generated subject and body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComposedEmail"
+
+  /outreach-ai/quick-send:
+    post:
+      operationId: quickSendEmail
+      tags: [outreach-ai]
+      summary: Create a draft and send it immediately (optionally with report attached)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuickSendInput"
+      responses:
+        "200":
+          description: Sent email record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachEmailEntry"
+
+  /outreach-ai/emails/{id}/send:
+    post:
+      operationId: sendOutreachEmail
+      tags: [outreach-ai]
+      summary: Send an outreach email via SMTP
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sent or failed result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachEmailEntry"
+
+  # ─────────────────────────────────────────
+  # BANT QUALIFIER
+  # ─────────────────────────────────────────
+  /qualify/queue:
+    get:
+      operationId: getQualifyQueue
+      tags: [qualify]
+      summary: Get unscored leads queue
+      responses:
+        "200":
+          description: Leads pending BANT scoring
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lead"
+
+  /qualify/{leadId}/score:
+    post:
+      operationId: saveBantScore
+      tags: [qualify]
+      summary: Save BANT scores and trigger routing
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BantScoreBody"
+      responses:
+        "200":
+          description: Updated lead with BANT score and routing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+
+  /qualify/{leadId}/ai:
+    post:
+      operationId: aiScoreLead
+      tags: [qualify]
+      summary: AI auto-score BANT for a lead
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: AI-suggested BANT scores with reasoning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiBantScore"
+
+  /qualify/{leadId}/explain:
+    post:
+      operationId: explainBantScores
+      tags: [qualify]
+      summary: Generate AI reasoning for existing BANT scores without changing them
+      parameters:
+        - name: leadId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: AI reasoning for the existing BANT scores
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiBantScore"
+
+  # ─────────────────────────────────────────
+  # OUTREACH ENGINE
+  # ─────────────────────────────────────────
+  /outreach/sequences:
+    get:
+      operationId: listSequences
+      tags: [outreach]
+      summary: List outreach sequences
+      responses:
+        "200":
+          description: List of sequences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OutreachSequence"
+    post:
+      operationId: createSequence
+      tags: [outreach]
+      summary: Create outreach sequence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSequenceBody"
+      responses:
+        "201":
+          description: Created sequence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachSequence"
+
+  /outreach/sequences/{id}:
+    patch:
+      operationId: updateSequence
+      tags: [outreach]
+      summary: Update outreach sequence
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSequenceBody"
+      responses:
+        "200":
+          description: Updated sequence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachSequence"
+
+  /outreach/queue:
+    get:
+      operationId: getOutreachQueue
+      tags: [outreach]
+      summary: Get all pending touchpoints
+      responses:
+        "200":
+          description: Pending touchpoints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Touchpoint"
+
+  /outreach/generate:
+    post:
+      operationId: generateMessage
+      tags: [outreach]
+      summary: AI generate personalized outreach message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateMessageBody"
+      responses:
+        "200":
+          description: Generated message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratedMessage"
+
+  /outreach/bulk-generate:
+    post:
+      operationId: bulkGenerateMessages
+      tags: [outreach]
+      summary: Bulk AI generate messages for queue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkGenerateBody"
+      responses:
+        "200":
+          description: Generated messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeneratedMessage"
+
+  /outreach/touchpoints/{id}:
+    patch:
+      operationId: updateTouchpoint
+      tags: [outreach]
+      summary: Update touchpoint status or content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTouchpointBody"
+      responses:
+        "200":
+          description: Updated touchpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Touchpoint"
+
+  # ─────────────────────────────────────────
+  # MEETING SYSTEM
+  # ─────────────────────────────────────────
+  /meetings:
+    get:
+      operationId: listMeetings
+      tags: [meetings]
+      summary: List all meetings
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of meetings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MeetingWithLead"
+    post:
+      operationId: createMeeting
+      tags: [meetings]
+      summary: Create meeting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMeetingBody"
+      responses:
+        "201":
+          description: Created meeting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+
+  /meetings/{id}:
+    get:
+      operationId: getMeeting
+      tags: [meetings]
+      summary: Get meeting detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Meeting detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingWithLead"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMeeting
+      tags: [meetings]
+      summary: Update meeting (notes, status)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMeetingBody"
+      responses:
+        "200":
+          description: Updated meeting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+    delete:
+      operationId: deleteMeeting
+      tags: [meetings]
+      summary: Delete a meeting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted successfully
+        "404":
+          description: Not found
+
+  /meetings/{id}/prep:
+    post:
+      operationId: getMeetingPrep
+      tags: [meetings]
+      summary: Generate pre-call materials (AI)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pre-call materials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingPrep"
+
+  /meetings/{id}/summary:
+    post:
+      operationId: generateMeetingSummary
+      tags: [meetings]
+      summary: Generate post-call summary email (AI)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Generated summary email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratedEmail"
+
+  # ─────────────────────────────────────────
+  # PROPOSALS & CLOSE TRACKER
+  # ─────────────────────────────────────────
+  /proposals:
+    get:
+      operationId: listProposals
+      tags: [proposals]
+      summary: List all proposals with pipeline status
+      responses:
+        "200":
+          description: List of proposals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProposalWithLead"
+    post:
+      operationId: createProposal
+      tags: [proposals]
+      summary: Create proposal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProposalBody"
+      responses:
+        "201":
+          description: Created proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+  /proposals/{id}:
+    get:
+      operationId: getProposal
+      tags: [proposals]
+      summary: Get proposal detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalWithLead"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProposal
+      tags: [proposals]
+      summary: Update proposal content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProposalBody"
+      responses:
+        "200":
+          description: Updated proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+  /proposals/{id}/generate:
+    post:
+      operationId: generateProposal
+      tags: [proposals]
+      summary: AI generate 333 proposal content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Generated proposal content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalContent"
+
+  /proposals/{id}/status:
+    patch:
+      operationId: updateProposalStatus
+      tags: [proposals]
+      summary: Update proposal pipeline stage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProposalStatusBody"
+      responses:
+        "200":
+          description: Updated proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+  /proposals/{id}/followups:
+    get:
+      operationId: getProposalFollowups
+      tags: [proposals]
+      summary: Get follow-up sequence for proposal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Follow-up items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FollowupItem"
+    post:
+      operationId: addProposalFollowup
+      tags: [proposals]
+      summary: Mark followup sent and generate next message (AI)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddFollowupBody"
+      responses:
+        "200":
+          description: Generated follow-up message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratedMessage"
+
+  /proposals/{id}/send-email:
+    post:
+      operationId: sendProposalEmail
+      tags: [proposals]
+      summary: Email proposal to lead via SMTP
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendProposalEmailBody"
+      responses:
+        "200":
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendProposalEmailResult"
+
+  # ─────────────────────────────────────────
+  # ANTHROPIC CHAT (for AI Email Composer)
+  # ─────────────────────────────────────────
+  /anthropic/conversations:
+    get:
+      operationId: listAnthropicConversations
+      tags: [anthropic]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicConversation"
+    post:
+      operationId: createAnthropicConversation
+      tags: [anthropic]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnthropicConversationBody"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversation"
+
+  /anthropic/conversations/{id}:
+    get:
+      operationId: getAnthropicConversation
+      tags: [anthropic]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversationWithMessages"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAnthropicConversation
+      tags: [anthropic]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /anthropic/conversations/{id}/messages:
+    get:
+      operationId: listAnthropicMessages
+      tags: [anthropic]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicMessage"
+    post:
+      operationId: sendAnthropicMessage
+      tags: [anthropic]
+      summary: Send a message (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendAnthropicMessageBody"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
+  # ─────────────────────────────────────────
+  # SETTINGS
+  # ─────────────────────────────────────────
+  /settings/smtp:
+    get:
+      operationId: getSmtpSettings
+      tags: [settings]
+      summary: Get SMTP settings
+      responses:
+        "200":
+          description: Current SMTP settings (password omitted)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SmtpSettings"
+
+    put:
+      operationId: updateSmtpSettings
+      tags: [settings]
+      summary: Save SMTP settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSmtpSettingsBody"
+      responses:
+        "200":
+          description: Updated SMTP settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SmtpSettings"
+
+  /settings/branding:
+    get:
+      operationId: getBrandingSettings
+      tags: [settings]
+      summary: Get branding settings
+      responses:
+        "200":
+          description: Current branding settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrandingSettings"
+
+    put:
+      operationId: updateBrandingSettings
+      tags: [settings]
+      summary: Save branding settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBrandingSettingsBody"
+      responses:
+        "200":
+          description: Updated branding settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrandingSettings"
+
+  /settings/smtp/test:
+    post:
+      operationId: testSmtpConnection
+      tags: [settings]
+      summary: Send a test email via Brevo to verify delivery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestEmailBody"
+      responses:
+        "200":
+          description: Result of sending the test email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestSmtpResult"
+
+  /appointments/slots:
+    get:
+      operationId: getAvailableSlots
+      tags: [Appointments]
+      summary: Get available time slots for a date
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Available slots
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: string
+                        label:
+                          type: string
+                      required: [time, label]
+                required: [date, slots]
+
+  /appointments:
+    get:
+      operationId: listAppointments
+      tags: [Appointments]
+      summary: List all appointments
+      responses:
+        "200":
+          description: All appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [Appointments]
+      summary: Book an appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentInput"
+      responses:
+        "201":
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "409":
+          description: Slot no longer available
+
+  /appointments/{id}:
+    patch:
+      operationId: updateAppointment
+      tags: [Appointments]
+      summary: Update appointment status or notes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [confirmed, cancelled, completed, noshow]
+                notes:
+                  type: string
+      responses:
+        "200":
+          description: Updated appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    delete:
+      operationId: deleteAppointment
+      tags: [Appointments]
+      summary: Delete an appointment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ─────────────────────────────────────────
+  # WHATSAPP
+  # ─────────────────────────────────────────
+  /whatsapp/conversations:
+    get:
+      operationId: getWhatsAppConversations
+      tags: [whatsapp]
+      summary: List all WhatsApp conversations with embedded lead and last message
+      responses:
+        "200":
+          description: Conversation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WhatsAppConversation"
+
+  /whatsapp/conversations/{id}/messages:
+    get:
+      operationId: getWhatsAppMessages
+      tags: [whatsapp]
+      summary: Get messages for a conversation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation thread
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppThread"
+
+  /whatsapp/analytics:
+    get:
+      operationId: getWhatsAppAnalytics
+      tags: [whatsapp]
+      summary: Get WhatsApp funnel analytics
+      responses:
+        "200":
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppAnalytics"
+
+  /whatsapp/settings:
+    get:
+      operationId: getWhatsAppSettings
+      tags: [whatsapp]
+      summary: Get WhatsApp settings (tokens omitted)
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppSettings"
+    put:
+      operationId: updateWhatsAppSettings
+      tags: [whatsapp]
+      summary: Update WhatsApp settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WhatsAppSettingsInput"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppSettings"
+
+  /whatsapp/test-connection:
+    post:
+      operationId: testWhatsAppConnection
+      tags: [whatsapp]
+      summary: Test WhatsApp API credentials
+      responses:
+        "200":
+          description: Connection test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppConnectionTest"
+
+  /whatsapp/initiate/{leadId}:
+    post:
+      operationId: initiateWhatsApp
+      tags: [whatsapp]
+      summary: Initiate WhatsApp hook message for a lead
+      parameters:
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Initiation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppInitiateResult"
+
+  /whatsapp/initiate-bulk:
+    post:
+      operationId: initiateWhatsAppBulk
+      tags: [whatsapp]
+      summary: Bulk-initiate WhatsApp hook messages for multiple leads
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                leadIds:
+                  type: array
+                  items:
+                    type: integer
+              required: [leadIds]
+      responses:
+        "200":
+          description: Bulk initiation results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsAppBulkResult"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    # ─── DASHBOARD ───
+    DashboardSummary:
+      type: object
+      properties:
+        totalLeads:
+          type: integer
+        totalLeadsThisMonth:
+          type: integer
+        qualifiedLeads:
+          type: integer
+        meetingsThisWeek:
+          type: integer
+        proposalsSent:
+          type: integer
+        pipelineValue:
+          type: number
+        dealsClosedThisMonth:
+          type: integer
+        bantQueueSize:
+          type: integer
+        outreachPending:
+          type: integer
+      required:
+        - totalLeads
+        - totalLeadsThisMonth
+        - qualifiedLeads
+        - meetingsThisWeek
+        - proposalsSent
+        - pipelineValue
+        - dealsClosedThisMonth
+        - bantQueueSize
+        - outreachPending
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        leadName:
+          type: ["string", "null"]
+        company:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, type, description, createdAt]
+
+    PipelineFunnel:
+      type: object
+      properties:
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/FunnelStage"
+      required: [stages]
+
+    FunnelStage:
+      type: object
+      properties:
+        stage:
+          type: string
+        count:
+          type: integer
+        conversionRate:
+          type: ["number", "null"]
+      required: [stage, count]
+
+    # ─── ICP ───
+    Icp:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        markets:
+          type: array
+          items:
+            type: string
+        industries:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        companySize:
+          type: string
+        filters:
+          type: object
+        active:
+          type: boolean
+        leadCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, markets, industries, roles, companySize, filters, active, leadCount, createdAt]
+
+    GenerateIcpBody:
+      type: object
+      properties:
+        website:
+          type: string
+        description:
+          type: string
+      required: [description]
+
+    IcpSuggestion:
+      type: object
+      properties:
+        name:
+          type: string
+        markets:
+          type: array
+          items:
+            type: string
+        industries:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        companySize:
+          type: string
+        filters:
+          type: object
+      required: [name, markets, industries, roles, companySize, filters]
+
+    CreateIcpBody:
+      type: object
+      properties:
+        name:
+          type: string
+        markets:
+          type: array
+          items:
+            type: string
+        industries:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        companySize:
+          type: string
+        filters:
+          type: object
+        active:
+          type: boolean
+      required: [name, markets, industries, roles, companySize, filters]
+
+    UpdateIcpBody:
+      type: object
+      properties:
+        name:
+          type: string
+        markets:
+          type: array
+          items:
+            type: string
+        industries:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        companySize:
+          type: string
+        filters:
+          type: object
+        active:
+          type: boolean
+
+    # ─── LEADS ───
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+        icpId:
+          type: ["integer", "null"]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        whatsapp:
+          type: ["string", "null"]
+        linkedInUrl:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        companyLogo:
+          type: ["string", "null"]
+        company:
+          type: string
+        city:
+          type: ["string", "null"]
+        country:
+          type: string
+        designation:
+          type: string
+        website:
+          type: ["string", "null"]
+        industry:
+          type: string
+        companySize:
+          type: ["string", "null"]
+        annualRevenue:
+          type: ["string", "null"]
+        source:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: ["string", "null"]
+        bantScore:
+          type: ["integer", "null"]
+        bantBreakdown:
+          type: ["object", "null"]
+        bantBand:
+          type: ["string", "null"]
+          enum: ["hot", "qualified", "nurture", "disqualify", null]
+          description: Band key derived from bantScore — hot (≥85), qualified (≥65), nurture (≥45), disqualify (<45)
+        status:
+          type: string
+        sequenceDay:
+          type: integer
+        lastContactedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - company
+        - designation
+        - industry
+        - country
+        - source
+        - status
+        - keywords
+        - tags
+        - sequenceDay
+        - createdAt
+        - updatedAt
+
+    LeadDetail:
+      allOf:
+        - $ref: "#/components/schemas/Lead"
+        - type: object
+          properties:
+            touchpoints:
+              type: array
+              items:
+                $ref: "#/components/schemas/Touchpoint"
+            meetings:
+              type: array
+              items:
+                $ref: "#/components/schemas/Meeting"
+            proposals:
+              type: array
+              items:
+                $ref: "#/components/schemas/Proposal"
+            auditData:
+              type: ["object", "null"]
+          required: [touchpoints, meetings, proposals]
+
+    LeadListResponse:
+      type: object
+      properties:
+        leads:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lead"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required: [leads, total, page, limit, totalPages]
+
+    CreateLeadBody:
+      type: object
+      properties:
+        icpId:
+          type: ["integer", "null"]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        whatsapp:
+          type: ["string", "null"]
+        linkedInUrl:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        companyLogo:
+          type: ["string", "null"]
+        company:
+          type: string
+        city:
+          type: ["string", "null"]
+        country:
+          type: string
+        designation:
+          type: string
+        website:
+          type: ["string", "null"]
+        industry:
+          type: string
+        companySize:
+          type: ["string", "null"]
+        annualRevenue:
+          type: ["string", "null"]
+        source:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: ["string", "null"]
+      required: [firstName, lastName, email, company, source]
+
+    UpdateLeadBody:
+      type: object
+      properties:
+        icpId:
+          type: ["integer", "null"]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        whatsapp:
+          type: ["string", "null"]
+        linkedInUrl:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        companyLogo:
+          type: ["string", "null"]
+        company:
+          type: string
+        city:
+          type: ["string", "null"]
+        country:
+          type: string
+        designation:
+          type: string
+        website:
+          type: ["string", "null"]
+        industry:
+          type: string
+        companySize:
+          type: ["string", "null"]
+        annualRevenue:
+          type: ["string", "null"]
+        source:
+          type: string
+        status:
+          type: string
+        bantScore:
+          type: ["integer", "null"]
+        bantBreakdown:
+          type: ["object", "null"]
+        bantBand:
+          type: ["string", "null"]
+          enum: ["hot", "qualified", "nurture", "disqualify", null]
+          description: Band key derived from bantScore — hot (≥85), qualified (≥65), nurture (≥45), disqualify (<45)
+        keywords:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: ["string", "null"]
+        sequenceDay:
+          type: integer
+        lastContactedAt:
+          type: ["string", "null"]
+
+    ImportCsvBody:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            type: object
+        icpId:
+          type: ["integer", "null"]
+      required: [rows]
+
+    ImportPasteBody:
+      type: object
+      properties:
+        text:
+          type: string
+        icpId:
+          type: ["integer", "null"]
+      required: [text]
+
+    ImportResult:
+      type: object
+      properties:
+        imported:
+          type: integer
+        skipped:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+      required: [imported, skipped, errors]
+
+    BulkUpdateLeadsBody:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+        status:
+          type: ["string", "null"]
+        sequenceId:
+          type: ["integer", "null"]
+      required: [ids]
+
+    BulkUpdateResult:
+      type: object
+      properties:
+        updated:
+          type: integer
+      required: [updated]
+
+    AssignSequenceBody:
+      type: object
+      properties:
+        sequenceId:
+          type: integer
+      required: [sequenceId]
+
+    # ─── AUDIT ───
+    AuditCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditSignal"
+      required: [id, name, slug, signals]
+
+    AuditSignal:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        severity:
+          type: string
+        categoryId:
+          type: integer
+      required: [id, name, severity, categoryId]
+
+    RunAuditBody:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        websiteUrl:
+          type: ["string", "null"]
+        companyName:
+          type: string
+        linkedInUrl:
+          type: ["string", "null"]
+      required: [leadId, companyName]
+
+    AuditResult:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        healthScore:
+          type: integer
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditSignalResult"
+        aiReport:
+          type: ["string", "null"]
+        pageSpeedScore:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [leadId, healthScore, criticalCount, highCount, mediumCount, signals, createdAt]
+
+    AuditSignalResult:
+      type: object
+      properties:
+        signalId:
+          type: integer
+        signalName:
+          type: string
+        severity:
+          type: string
+        categorySlug:
+          type: string
+        categoryName:
+          type: string
+        status:
+          type: string
+        aiStatus:
+          type: ["string", "null"]
+          description: "The original status assigned by AI before any manual override"
+        explanation:
+          type: ["string", "null"]
+        manualOverride:
+          type: ["boolean", "null"]
+          description: "True if this signal's status was manually set by a user, false or absent if AI-detected"
+      required: [signalId, signalName, severity, categorySlug, categoryName, status]
+
+    AuditRunSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        healthScore:
+          type: integer
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        pageSpeedScore:
+          type: ["integer", "null"]
+        hasOverrides:
+          type: boolean
+        overrideCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, leadId, healthScore, criticalCount, highCount, mediumCount, hasOverrides, overrideCount, createdAt]
+
+    AuditedLead:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        designation:
+          type: string
+        country:
+          type: ["string", "null"]
+        industry:
+          type: string
+        website:
+          type: ["string", "null"]
+        photo:
+          type: ["string", "null"]
+        companyLogo:
+          type: ["string", "null"]
+        healthScore:
+          type: integer
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        aiReport:
+          type: ["string", "null"]
+      required: [id, firstName, lastName, email, company, designation, industry, healthScore, criticalCount, highCount, mediumCount]
+
+    ComposeEmailInput:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        ctaType:
+          type: string
+          enum: [consultation, call, demo, report]
+        ctaTypes:
+          type: array
+          items:
+            type: string
+            enum: [consultation, call, demo, report]
+        tone:
+          type: string
+          enum: [professional, friendly, direct, consultative]
+      required: [leadId]
+
+    ComposedEmail:
+      type: object
+      properties:
+        subject:
+          type: string
+        body:
+          type: string
+        auditRunId:
+          type: ["integer", "null"]
+      required: [subject, body]
+
+    QuickSendInput:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        toEmail:
+          type: string
+        toName:
+          type: string
+        company:
+          type: string
+        country:
+          type: string
+        currency:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        bodyHtml:
+          type: string
+        attachReport:
+          type: boolean
+        saveDraft:
+          type: boolean
+        userAttachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              content:
+                type: string
+            required: [name, content]
+      required: [leadId, toEmail, toName, company, subject, body]
+
+    OutreachEmailEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        auditRunId:
+          type: ["integer", "null"]
+        toEmail:
+          type: string
+        toName:
+          type: string
+        company:
+          type: string
+        country:
+          type: string
+        currency:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        status:
+          type: string
+        sentAt:
+          type: ["string", "null"]
+          format: date-time
+        errorMsg:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        leadFirstName:
+          type: string
+        leadLastName:
+          type: string
+        leadDesignation:
+          type: string
+        leadWebsite:
+          type: ["string", "null"]
+        leadIndustry:
+          type: string
+        leadPhoto:
+          type: ["string", "null"]
+        leadCompanyLogo:
+          type: ["string", "null"]
+      required: [id, leadId, toEmail, toName, company, country, currency, subject, body, status, createdAt, updatedAt, leadFirstName, leadLastName, leadDesignation, leadIndustry]
+
+    UpdateOutreachEmailInput:
+      type: object
+      properties:
+        subject:
+          type: string
+        body:
+          type: string
+
+    GenerateIntelReportRequest:
+      type: object
+      required: [leadId, preparedBy, preparedByPhone, preparedByEmail, agencyName, agencyWebsite]
+      properties:
+        leadId:
+          type: integer
+        preparedBy:
+          type: string
+        preparedByPhone:
+          type: string
+        preparedByEmail:
+          type: string
+        agencyName:
+          type: string
+        agencyWebsite:
+          type: string
+        agencyAbout:
+          type: string
+
+    AuditBankEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        company:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        designation:
+          type: string
+        city:
+          type: ["string", "null"]
+        country:
+          type: string
+        website:
+          type: ["string", "null"]
+        healthScore:
+          type: integer
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        pageSpeedScore:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, leadId, company, firstName, lastName, designation, country, healthScore, criticalCount, highCount, mediumCount, createdAt]
+
+    AuditRun:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        healthScore:
+          type: integer
+        criticalCount:
+          type: integer
+        highCount:
+          type: integer
+        mediumCount:
+          type: integer
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditSignalResult"
+        aiReport:
+          type: ["string", "null"]
+        pageSpeedScore:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, leadId, healthScore, criticalCount, highCount, mediumCount, signals, createdAt]
+
+    UpdateAuditBody:
+      type: object
+      properties:
+        signals:
+          type: array
+          items:
+            type: object
+            properties:
+              signalId:
+                type: integer
+              status:
+                type: string
+              reset:
+                type: boolean
+                description: "When true, revert this signal back to its original AI-assigned status"
+            required: [signalId]
+      required: [signals]
+
+    # ─── BANT ───
+    BantScoreBody:
+      type: object
+      properties:
+        budget:
+          type: integer
+        authority:
+          type: integer
+        need:
+          type: integer
+        timeline:
+          type: integer
+        reasoning:
+          type: object
+          description: Optional per-dimension reasoning text to persist alongside the scores
+          properties:
+            budget:
+              type: string
+            authority:
+              type: string
+            need:
+              type: string
+            timeline:
+              type: string
+      required: [budget, authority, need, timeline]
+
+    AiBantScore:
+      type: object
+      properties:
+        budget:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+          required: [score, reason]
+        authority:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+          required: [score, reason]
+        need:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+          required: [score, reason]
+        timeline:
+          type: object
+          properties:
+            score:
+              type: integer
+            reason:
+              type: string
+          required: [score, reason]
+        totalScore:
+          type: integer
+        reasoning:
+          type: string
+          description: Combined AI reasoning across all BANT dimensions
+      required: [budget, authority, need, timeline, totalScore]
+
+    # ─── OUTREACH ───
+    OutreachSequence:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        industry:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        steps:
+          type: array
+          items:
+            type: object
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, active, steps, createdAt]
+
+    CreateSequenceBody:
+      type: object
+      properties:
+        name:
+          type: string
+        industry:
+          type: ["string", "null"]
+        steps:
+          type: array
+          items:
+            type: object
+        active:
+          type: boolean
+      required: [name, steps]
+
+    UpdateSequenceBody:
+      type: object
+      properties:
+        name:
+          type: string
+        industry:
+          type: ["string", "null"]
+        steps:
+          type: array
+          items:
+            type: object
+        active:
+          type: boolean
+
+    Touchpoint:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        channel:
+          type: string
+        day:
+          type: integer
+        subject:
+          type: ["string", "null"]
+        body:
+          type: string
+        status:
+          type: string
+        sentAt:
+          type: ["string", "null"]
+          format: date-time
+        openedAt:
+          type: ["string", "null"]
+          format: date-time
+        repliedAt:
+          type: ["string", "null"]
+          format: date-time
+        aiGenerated:
+          type: boolean
+        leadName:
+          type: ["string", "null"]
+        company:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, leadId, channel, day, body, status, aiGenerated, createdAt]
+
+    UpdateTouchpointBody:
+      type: object
+      properties:
+        body:
+          type: string
+        subject:
+          type: ["string", "null"]
+        status:
+          type: string
+        sentAt:
+          type: ["string", "null"]
+
+    GenerateMessageBody:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        sequenceDay:
+          type: integer
+        channel:
+          type: string
+      required: [leadId, sequenceDay, channel]
+
+    BulkGenerateBody:
+      type: object
+      properties:
+        touchpointIds:
+          type: array
+          items:
+            type: integer
+      required: [touchpointIds]
+
+    GeneratedMessage:
+      type: object
+      properties:
+        touchpointId:
+          type: ["integer", "null"]
+        subject:
+          type: ["string", "null"]
+        body:
+          type: string
+        subjectB:
+          type: ["string", "null"]
+        channel:
+          type: string
+        leadId:
+          type: integer
+      required: [body, channel, leadId]
+
+    # ─── MEETINGS ───
+    Meeting:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+        meetingUrl:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        painPoints:
+          type: array
+          items:
+            type: string
+        nextAction:
+          type: ["string", "null"]
+        emotionalDriver:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, leadId, scheduledAt, duration, type, status, painPoints, createdAt]
+
+    MeetingWithLead:
+      allOf:
+        - $ref: "#/components/schemas/Meeting"
+        - type: object
+          properties:
+            lead:
+              $ref: "#/components/schemas/Lead"
+          required: [lead]
+
+    CreateMeetingBody:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        type:
+          type: string
+        meetingUrl:
+          type: ["string", "null"]
+      required: [leadId, scheduledAt]
+
+    UpdateMeetingBody:
+      type: object
+      properties:
+        scheduledAt:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+        meetingUrl:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        painPoints:
+          type: array
+          items:
+            type: string
+        nextAction:
+          type: ["string", "null"]
+        emotionalDriver:
+          type: ["string", "null"]
+
+    MeetingPrep:
+      type: object
+      properties:
+        meetingId:
+          type: integer
+        leadSummary:
+          type: string
+        topPainSignals:
+          type: array
+          items:
+            type: string
+        openingQuestion:
+          type: string
+        phaseGuides:
+          type: array
+          items:
+            type: object
+        bookingEmail:
+          type: string
+        whatsappReminder:
+          type: string
+      required: [meetingId, leadSummary, topPainSignals, openingQuestion, phaseGuides, bookingEmail, whatsappReminder]
+
+    GeneratedEmail:
+      type: object
+      properties:
+        subject:
+          type: string
+        body:
+          type: string
+      required: [subject, body]
+
+    # ─── PROPOSALS ───
+    Proposal:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        title:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        investment:
+          type: number
+        roiEstimate:
+          type: ["number", "null"]
+        status:
+          type: string
+        sentAt:
+          type: ["string", "null"]
+          format: date-time
+        content:
+          type: ["object", "null"]
+        followups:
+          type: array
+          items:
+            type: object
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, leadId, title, services, investment, status, followups, createdAt]
+
+    ProposalWithLead:
+      allOf:
+        - $ref: "#/components/schemas/Proposal"
+        - type: object
+          properties:
+            lead:
+              $ref: "#/components/schemas/Lead"
+          required: [lead]
+
+    CreateProposalBody:
+      type: object
+      properties:
+        leadId:
+          type: integer
+        title:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        investment:
+          type: number
+        roiEstimate:
+          type: ["number", "null"]
+      required: [leadId, title, services, investment]
+
+    UpdateProposalBody:
+      type: object
+      properties:
+        title:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        investment:
+          type: number
+        roiEstimate:
+          type: ["number", "null"]
+        content:
+          type: object
+
+    UpdateProposalStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ProposalContent:
+      type: object
+      properties:
+        mirror:
+          type: string
+        costOfInaction:
+          type: string
+        solutionBlueprint:
+          type: string
+        process:
+          type: string
+        proof:
+          type: string
+        roi:
+          type: string
+        investment:
+          type: string
+        nextStep:
+          type: string
+      required: [mirror, costOfInaction, solutionBlueprint, process, proof, roi, investment, nextStep]
+
+    FollowupItem:
+      type: object
+      properties:
+        day:
+          type: integer
+        channel:
+          type: string
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+        timing:
+          type: string
+      required: [day, channel, status, timing]
+
+    AddFollowupBody:
+      type: object
+      properties:
+        day:
+          type: integer
+        channel:
+          type: string
+      required: [day, channel]
+
+    SendProposalEmailBody:
+      type: object
+      properties:
+        subject:
+          type: string
+        message:
+          type: string
+
+    SendProposalEmailResult:
+      type: object
+      properties:
+        sent:
+          type: boolean
+        to:
+          type: string
+        subject:
+          type: string
+        deliveryMode:
+          type: string
+          enum: [smtp, test]
+        preview:
+          type: string
+      required: [sent, to, subject, deliveryMode]
+
+    # ─── ANTHROPIC ───
+    AnthropicConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, createdAt]
+
+    AnthropicMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, conversationId, role, content, createdAt]
+
+    CreateAnthropicConversationBody:
+      type: object
+      properties:
+        title:
+          type: string
+      required: [title]
+
+    SendAnthropicMessageBody:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+
+    AnthropicConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnthropicMessage"
+      required: [id, title, createdAt, messages]
+
+    AnthropicError:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    # ─── SETTINGS ───
+    SmtpSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        host:
+          type: ["string", "null"]
+        port:
+          type: ["integer", "null"]
+        user:
+          type: ["string", "null"]
+        fromAddress:
+          type: ["string", "null"]
+        secure:
+          type: ["boolean", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, updatedAt]
+
+    UpdateSmtpSettingsBody:
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+        user:
+          type: string
+        password:
+          type: string
+        fromAddress:
+          type: string
+        secure:
+          type: boolean
+
+    TestSmtpResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success, message]
+
+    TestEmailBody:
+      type: object
+      properties:
+        toEmail:
+          type: string
+      required: [toEmail]
+
+    # ─── BRANDING ───
+    BrandingSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        companyName:
+          type: ["string", "null"]
+        tagline:
+          type: ["string", "null"]
+        contactInfo:
+          type: ["string", "null"]
+        brandColor:
+          type: ["string", "null"]
+        logoBase64:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, updatedAt]
+
+    UpdateBrandingSettingsBody:
+      type: object
+      properties:
+        companyName:
+          type: string
+        tagline:
+          type: string
+        contactInfo:
+          type: string
+        brandColor:
+          type: string
+        logoBase64:
+          type: string
+
+    # ─── APPOINTMENTS ───
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        scheduledDate:
+          type: string
+        scheduledTime:
+          type: string
+        durationMinutes:
+          type: integer
+        timezone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        businessSummary:
+          type: ["string", "null"]
+        specificProblem:
+          type: ["string", "null"]
+        desiredResult:
+          type: ["string", "null"]
+        whyCanHelp:
+          type: ["string", "null"]
+        investmentWillingness:
+          type: ["string", "null"]
+        minInvestmentConfirm:
+          type: ["string", "null"]
+        startSoon:
+          type: ["string", "null"]
+        businessPartner:
+          type: ["string", "null"]
+        services:
+          type: array
+          items:
+            type: string
+        otherService:
+          type: ["string", "null"]
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, email, scheduledDate, scheduledTime, durationMinutes, status, createdAt, updatedAt]
+
+    CreateAppointmentInput:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        scheduledDate:
+          type: string
+        scheduledTime:
+          type: string
+        location:
+          type: string
+          enum: [meet, inperson]
+        businessSummary:
+          type: string
+        specificProblem:
+          type: string
+        desiredResult:
+          type: string
+        whyCanHelp:
+          type: string
+        investmentWillingness:
+          type: string
+        minInvestmentConfirm:
+          type: string
+        startSoon:
+          type: string
+        businessPartner:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        otherService:
+          type: string
+      required: [name, email, scheduledDate, scheduledTime]
+
+    # ─── WhatsApp Schemas ────────────────────────────────────────────
+    WhatsAppLeadEmbed:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        company:
+          type: ["string", "null"]
+        designation:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+      required: [id]
+
+    WhatsAppConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        leadId:
+          type: integer
+        waPhoneNumber:
+          type: string
+        state:
+          type: string
+          enum: [hook_sent, awaiting_yes, report_sent, qualifying, appointment_pitched, appointment_booked, opted_out]
+        language:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lead:
+          oneOf:
+            - $ref: "#/components/schemas/WhatsAppLeadEmbed"
+            - type: "null"
+        lastMessage:
+          type: ["string", "null"]
+      required: [id, leadId, waPhoneNumber, state, language, createdAt, updatedAt]
+
+    WhatsAppMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        content:
+          type: string
+        waMessageId:
+          type: ["string", "null"]
+        sentAt:
+          type: string
+          format: date-time
+      required: [id, conversationId, direction, content, sentAt]
+
+    WhatsAppThread:
+      type: object
+      properties:
+        conversation:
+          $ref: "#/components/schemas/WhatsAppConversation"
+        lead:
+          oneOf:
+            - $ref: "#/components/schemas/WhatsAppLeadEmbed"
+            - type: "null"
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/WhatsAppMessage"
+      required: [conversation, messages]
+
+    WhatsAppAnalytics:
+      type: object
+      properties:
+        totalInitiated:
+          type: integer
+        yesRate:
+          type: number
+        reportsSent:
+          type: integer
+        appointmentsBooked:
+          type: integer
+        optedOut:
+          type: integer
+      required: [totalInitiated, yesRate, reportsSent, appointmentsBooked, optedOut]
+
+    WhatsAppSettings:
+      type: object
+      properties:
+        phoneNumberId:
+          type: ["string", "null"]
+        webhookVerifyToken:
+          type: ["string", "null"]
+        bookingUrl:
+          type: ["string", "null"]
+        consultantName:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+        caseStudyUrl:
+          type: ["string", "null"]
+        companyProfileUrl:
+          type: ["string", "null"]
+        referenceSites:
+          type: array
+          items:
+            type: string
+        hookTemplateName:
+          type: ["string", "null"]
+        hookTemplateLang:
+          type: ["string", "null"]
+      required: []
+
+    WhatsAppSettingsInput:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        appSecret:
+          type: string
+        phoneNumberId:
+          type: string
+        webhookVerifyToken:
+          type: string
+        bookingUrl:
+          type: ["string", "null"]
+        consultantName:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+        caseStudyUrl:
+          type: ["string", "null"]
+        companyProfileUrl:
+          type: ["string", "null"]
+        referenceSites:
+          type: array
+          items:
+            type: string
+        hookTemplateName:
+          type: ["string", "null"]
+        hookTemplateLang:
+          type: string
+      required: []
+
+    WhatsAppConnectionTest:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        detail:
+          type: string
+      required: [ok, detail]
+
+    WhatsAppInitiateResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        conversationId:
+          type: integer
+        message:
+          type: string
+        error:
+          type: ["string", "null"]
+      required: [success, message]
+
+    WhatsAppBulkResult:
+      type: object
+      properties:
+        succeeded:
+          type: integer
+        failed:
+          type: integer
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              leadId:
+                type: integer
+              success:
+                type: boolean
+              message:
+                type: string
+            required: [leadId, success, message]
+      required: [succeeded, failed, results]

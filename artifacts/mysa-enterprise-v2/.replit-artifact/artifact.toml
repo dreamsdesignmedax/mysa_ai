@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/v2/"
+title = "Mysa AI — Enterprise v2"
+version = "1.0.0"
+id = "artifacts/mysa-enterprise-v2"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/v2/" ]
+localPort = 20112
+
+[services.development]
+run = "pnpm --filter @workspace/mysa-enterprise-v2 run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mysa-enterprise-v2", "run", "build" ]
+publicDir = "artifacts/mysa-enterprise-v2/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20112"
+BASE_PATH = "/v2/"

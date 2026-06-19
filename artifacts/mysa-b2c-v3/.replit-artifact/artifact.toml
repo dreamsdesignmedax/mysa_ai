@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/v3/"
+title = "Mysa AI — B2C v3"
+version = "1.0.0"
+id = "artifacts/mysa-b2c-v3"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/v3/" ]
+localPort = 24425
+
+[services.development]
+run = "pnpm --filter @workspace/mysa-b2c-v3 run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mysa-b2c-v3", "run", "build" ]
+publicDir = "artifacts/mysa-b2c-v3/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24425"
+BASE_PATH = "/v3/"
