@@ -246,7 +246,7 @@ export default function Login({ onSuccess, onRegisterClick }: LoginProps) {
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse 500px 400px at 20% 80%, rgba(167,139,250,0.14) 0%, transparent 65%), radial-gradient(ellipse 400px 350px at 85% 15%, rgba(124,58,237,0.18) 0%, transparent 65%)" }} />
 
         <div className="flex items-center gap-3 relative z-10">
-          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="MysaAI" className="w-9 h-9 rounded-xl flex-shrink-0 object-cover" />
+          <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="MysaAI" className="w-9 h-9 rounded-xl flex-shrink-0 object-cover" />
           <span style={{ fontSize: 18, fontWeight: 700, color: "white", letterSpacing: "-0.025em" }}>MysaAI</span>
         </div>
 

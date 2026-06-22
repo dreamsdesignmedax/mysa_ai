@@ -819,7 +819,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Logo */}
           <div className="px-4 py-4" style={{ borderBottom: "1px solid hsl(220 13% 91%)" }}>
             <div className="flex items-center gap-2.5">
-              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="MysaAI" className="w-8 h-8 rounded-lg flex-shrink-0 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="MysaAI" className="w-8 h-8 rounded-lg flex-shrink-0 object-cover" />
               <div>
                 <div className="text-[13px] font-bold leading-tight" style={{ color: "#111827" }}>MysaAI</div>
                 <div className="text-[10px] font-medium leading-tight" style={{ color: "#9CA3AF" }}>AI Sales Brain</div>
@@ -888,7 +888,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             style={{ height: 56, background: "#ffffff", borderBottom: "1px solid hsl(220 13% 91%)" }}
           >
             <div className="flex items-center gap-2.5">
-              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="MysaAI" className="w-7 h-7 rounded-lg flex-shrink-0 object-cover" />
+              <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="MysaAI" className="w-7 h-7 rounded-lg flex-shrink-0 object-cover" />
               <span className="text-[15px] font-bold" style={{ color: "#111827" }}>MysaAI</span>
             </div>
             <div className="flex items-center gap-2">
