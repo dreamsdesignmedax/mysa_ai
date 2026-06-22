@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      ...(mode === "production" && {
+        "react/jsx-dev-runtime": "react/jsx-runtime",
+      }),
     },
   },
   server: {
