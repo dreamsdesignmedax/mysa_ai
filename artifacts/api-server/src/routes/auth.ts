@@ -137,6 +137,15 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
     const bcryptHash = await hashPassword(password);
     let bootstrapUser = (await db.select().from(users).where(sql`lower(${users.email}) = ${normalizedEmail}`))[0];
     if (!bootstrapUser) {
+      // Ensure org id=1 exists before inserting the user (FK constraint)
+      await db.insert(organizations).values({
+        id: 1,
+        name: "MysaAI",
+        email: ENV_EMAIL || "admin@mysaai.com",
+        plan: "trial",
+        subscriptionStatus: "trialing",
+      } as any).onConflictDoNothing();
+
       // Upsert the bootstrap user linked to org_id=1, storing bcrypt hash
       [bootstrapUser] = await db.insert(users).values({
         email: ENV_EMAIL,
