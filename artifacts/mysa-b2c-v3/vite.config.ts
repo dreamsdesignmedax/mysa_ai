@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "src"),
       ...(mode === "production" && {
-        "react/jsx-dev-runtime": "react/jsx-runtime",
+        "react/jsx-dev-runtime": path.resolve(__dirname, "src/jsx-dev-shim.ts"),
       }),
     },
   },
